@@ -255,6 +255,12 @@ class FineRecord:
             'status': self.status
         }
 
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'FineRecord':
+        d = data.copy()
+        d['amount'] = float(d.get('amount', 0.0))
+        return cls(**data)
+
 
 # Notification class
 class Notification:
@@ -454,6 +460,8 @@ class User(ABC):
         return len(self.current_borrowings)
 
     def activate(self, activated_by: str) -> bool:
+        if self.status == UserStatus.ACTIVE.value:
+            return True
         if self.status == UserStatus.PENDING_ACTIVATION.value:
             self.status = UserStatus.ACTIVE.value
             self.activation_date = datetime.now().strftime("%Y-%m-%d")
