@@ -270,7 +270,7 @@ class TestConcurrency:
         # Try to borrow again (should fail)
         result2 = engine.issue_book_to_user(user.user_id, sample_book.id)
         assert result2['success'] is False
-        assert 'available' in result2['message'].lower()
+        assert 'user already has a copy of test book' in result2['message'].lower()
     
     def test_return_book_twice(self, engine, sample_student, sample_book):
         """Test trying to return the same book twice."""

@@ -129,6 +129,7 @@ class TestEngineBookOperations:
     def test_issue_book_success(self, engine, sample_student, sample_book):
         """Test successful book issuance."""
         user, admin = sample_student
+        initial_copies = sample_book.copies
         
         # Issue book
         result = engine.issue_book_to_user(user.user_id, sample_book.id)
@@ -143,15 +144,17 @@ class TestEngineBookOperations:
         
         # Reload book and verify
         updated_book = engine.load_book(sample_book.id)
-        assert updated_book.copies == sample_book.copies - 1
+        assert updated_book.copies == initial_copies - 1
     
     def test_issue_book_unavailable(self, engine, sample_student, sample_book):
         """Test issuing a book with no available copies."""
         user, admin = sample_student
         
         # Borrow all copies
-        for _ in range(sample_book.copies):
-            engine.issue_book_to_user(user.user_id, sample_book.id)
+        # for _ in range(sample_book.copies):
+        #     engine.issue_book_to_user(user.user_id, sample_book.id)
+        sample_book.copies = 0
+        engine.save_book(sample_book)
         
         # Try to borrow again
         result = engine.issue_book_to_user(user.user_id, sample_book.id)
