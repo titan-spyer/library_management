@@ -65,9 +65,9 @@ class Validator:
             return False, "User is inactive"
         if user.status != UserStatus.ACTIVE.value:
             return False, "User is not active status: " + UserStatus.get_name(user.status)
-        # for record in user.current_borrowings:
-        #     if record.resource_id == resource.id:
-        #         return False, f"User already has a copy of {resource.title}"
+        for record in user.current_borrowings:
+            if record.resource_id == resource.id:
+                return False, f"User already has a copy of {resource.title}"
         limits = user.get_borrowing_limits()
         current_borrowings = len(user.current_borrowings)
         if current_borrowings >= limits['max_books']:
