@@ -24,6 +24,7 @@ jobs:
       with:
         python-version: "3.10"
         cache: 'pip' # Speeds up future runs by caching downloads
+        cache-dependency-path: 'requirements-test.txt'
 
     # 3. Install your project dependencies
     - name: Install Dependencies
