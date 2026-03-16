@@ -196,27 +196,32 @@ class Storage:
 
     def search_resources_by_author(self, author: str) -> List[Dict[str, str]]:
         resources = self._read_csv(self.resources_file)
-        author_lower = author.lower()
+        # author_lower = author.lower()
         # Split into words for better matching
-        author_words = author_lower.split()
+        # author_words = author_lower.split()
         results = []
         for res in resources:
             if res.get('author'):
-                res_author_lower = res['author'].lower()
+                # res_author_lower = res['author'].lower()
+                author_lower = res['author'].lower()
                 # Check if all search words appear in the author field
-                if all(word in res_author_lower for word in author_words):
+                # if all(word in res_author_lower for word in author_words):
+                if author.lower() in author_lower.split() or author.lower() == author_lower:
                     results.append(res)
         return results
 
     def search_resources_by_genre(self, genre: str) -> List[Dict[str, str]]:
         resources = self._read_csv(self.resources_file)
-        genre_lower = genre.lower()
-        genre_words = genre_lower.split()
+        # genre_lower = genre.lower()
+        # genre_words = genre_lower.split()
         results = []
         for res in resources:
             if res.get('genre'):
-                res_genre_lower = res['genre'].lower()
-                if all(word in res_genre_lower for word in genre_words):
+                # res_genre_lower = res['genre'].lower()
+                genre_lower = res['genre'].lower()
+                # Check if all search words appear in the genre field
+                # if all(word in res_genre_lower for word in genre_words):
+                if genre.lower() in genre_lower.split() or genre.lower() == genre_lower:
                     results.append(res)
         return results
     def search_resources_by_title(self, title: str) -> List[Dict[str, str]]:
