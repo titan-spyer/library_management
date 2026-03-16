@@ -3,10 +3,9 @@ Test cases for the LibraryEngine class.
 Covers user registration, login, book operations, and transactions.
 """
 
-import pytest
+# import pytest
 from datetime import datetime, timedelta
 from src.models.user import UserRole, UserStatus
-from src.models.book import StatusType
 
 
 class TestEngineUserRegistration:

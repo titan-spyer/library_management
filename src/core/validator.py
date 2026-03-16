@@ -1,9 +1,9 @@
 import re
-from typing import Optional, Tuple, Any, List
+from typing import Optional, Tuple, List
 from datetime import datetime
 
 from src.models.user import User, UserRole, UserStatus, BorrowingRecord
-from src.models.book import Resource, FormatType
+from src.models.book import Resource
 
 class Validator:
     def validate_email(self, email: str) -> Tuple[bool, str]:

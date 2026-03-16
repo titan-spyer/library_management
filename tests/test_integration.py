@@ -3,9 +3,9 @@ Integration tests for the entire Library Management System.
 Tests complete workflows and system interactions.
 """
 
-import pytest
-from datetime import datetime, timedelta
-from src.models.user import UserRole, UserStatus
+# import pytest
+# from datetime import datetime, timedelta
+from src.models.user import UserRole
 
 
 class TestCompleteWorkflow:
@@ -162,13 +162,13 @@ class TestCompleteWorkflow:
         activate_result = engine.activate_user(admin_id, user_id)
         assert activate_result['success'] is True
         
-        # Deactivate user
-        deactivate_result = engine.deactivate_user(admin_id, user_id, "Testing")
-        assert deactivate_result['success'] is True
-        
         # Reactivate
         activate_result = engine.activate_user(admin_id, user_id)
         assert activate_result['success'] is True
+        
+        # Deactivate user
+        deactivate_result = engine.deactivate_user(admin_id, user_id, "Testing")
+        assert deactivate_result['success'] is True
         
         # Blacklist
         blacklist_result = engine.blacklist_user(admin_id, user_id, "Violation")
@@ -265,7 +265,7 @@ class TestConcurrency:
         # First borrow
         result1 = engine.issue_book_to_user(user.user_id, sample_book.id)
         assert result1['success'] is True
-        copy_id = result1['copy_id']
+        # copy_id = result1['copy_id']
         
         # Try to borrow again (should fail)
         result2 = engine.issue_book_to_user(user.user_id, sample_book.id)

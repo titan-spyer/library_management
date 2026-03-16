@@ -1,10 +1,8 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from datetime import datetime, date, timedelta
+from datetime import datetime, timedelta
 from typing import Optional, List, Dict, Any, Set
-import hashlib
 import secrets
-import re
 
 from src.utils.auth_tools import AuthTools
 
@@ -386,7 +384,7 @@ class User(ABC):
             print(f"Cannot add borrowing: {message}")
             return False
         self.current_borrowings.append(record)
-        self.borrowing_history.append(record)
+        # self.borrowing_history.append(record)
         self.total_books_borrowed += 1
         return True
 
@@ -460,8 +458,8 @@ class User(ABC):
         return len(self.current_borrowings)
 
     def activate(self, activated_by: str) -> bool:
-        if self.status == UserStatus.ACTIVE.value:
-            return True
+        if self.status== UserStatus.ACTIVE.value:
+            return True 
         if self.status == UserStatus.PENDING_ACTIVATION.value:
             self.status = UserStatus.ACTIVE.value
             self.activation_date = datetime.now().strftime("%Y-%m-%d")

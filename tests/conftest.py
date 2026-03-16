@@ -1,15 +1,11 @@
 import pytest
-import os
 import shutil
 import tempfile
-from datetime import datetime, timedelta
 
 from src.core.engine import LibraryEngine
-from src.models.user import UserFactory, UserRole, UserStatus, Student, Faculty, Librarian, Admin
-from src.models.book import ResourceFactory, Book, Journal, ResearchPaper, PhysicalCopy
+from src.models.user import UserRole
 from src.repository.storage import Storage
 from src.core.validator import Validator
-from src.utils.auth_tools import AuthTools
 
 
 @pytest.fixture

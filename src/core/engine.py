@@ -1,4 +1,4 @@
-from typing import Optional, List, Dict, Any, Tuple
+from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
 import os
 import sys
@@ -7,7 +7,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 from src.models.user import User, UserFactory, UserRole, UserStatus, BorrowingRecord, FineRecord
-from src.models.book import Resource, Book, ResourceFactory, PhysicalCopy, StatusType, ConditionType
+from src.models.book import Resource, ResourceFactory, PhysicalCopy
 from src.repository.storage import Storage
 from src.core.validator import Validator
 from src.utils.logger import Logger
@@ -595,7 +595,7 @@ class LibraryEngine:
         user = self.load_user(user_id)
         if not user:
             return {"error": "user not found"}
-        total_borrowed = len(user.borrowing_history)
+        total_borrowed = user.total_books_borrowed
         active_borrowings = len(user.current_borrowings)
         overdue_count = 0
 

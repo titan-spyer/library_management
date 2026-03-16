@@ -3,10 +3,9 @@ Test cases for the Validator class.
 Tests all validation rules and business logic.
 """
 
-import pytest
 from datetime import datetime, timedelta
 from src.models.user import UserRole, UserStatus, BorrowingRecord
-from src.models.book import Resource, ResourceType, FormatType
+
 
 
 class TestValidatorEmail:
