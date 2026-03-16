@@ -163,7 +163,7 @@ class LibraryCLI:
                     break
             else:
                 self._show_main_menu()
-    def _show_auth_menu(self):
+    def show_auth_menu(self):
         self._print_header("📚 LIBRARY MANAGEMENT SYSTEM")
         print("Welcome to the Library Management System!\n")
         options = ["Login", "Register", "Exit"]
