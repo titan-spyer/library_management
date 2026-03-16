@@ -209,6 +209,8 @@ class LibraryEngine:
         book_id = active_record.resource_id
         book = self.load_book(book_id)
         fine_amount = active_record.return_item()
+        user.current_borrowings.remove(active_record)
+        user.borrowing_history.append(active_record)
         if book:
             if book.format == 0:
                 for copy in book.physical_copies:
@@ -484,7 +486,7 @@ class LibraryEngine:
                     self.logger.info(f"Fine {fine_id} waived by {admin.full_name}")
                     user.add_notification(
                         "fine",
-                        f"Your fine of ${fine.amount:.2f} for record {fine.record_id} has been waived by {admin.full_name}.",
+                        f"Your fine of ${fine.amount} for record {fine.record_id} has been waived by {admin.full_name}.",
                         "high"
                     )
                     return {
