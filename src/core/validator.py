@@ -36,16 +36,18 @@ class Validator:
             return False, "Username must be at least 6 characters long"
         if len(username) > 20:
             return False, "Username cannot exceed 20 characters"
-        if not re.match(r'[A-Za-z][A-Za-z0-9_-]*$', username):
+        if not re.match(r'^[A-Za-z][A-Za-z0-9_.-]*$', username):
             return False, "Invalid username format"
         return True, "Valid username"
     def validate_phone(self, phone: str) -> Tuple[bool, str]:
         if not phone:
             return False, "Phone number cannot be empty"
-        cleaned = re.sub(r'[\s\-\(\)\+]', '', phone)
+        cleaned = re.sub(r'[\s\-\(\)]', '', phone)
+        if cleaned.startswith('+'):
+            cleaned = cleaned[1:]
         if not cleaned.isdigit():
             return False, "Invalid phone number format"
-        if len(cleaned) == 10:
+        if 10 <= len(cleaned) <= 12:
             return True, "Valid phone number (10 digits)"
         return False, "Invalid phone number format"
 
@@ -63,6 +65,9 @@ class Validator:
             return False, "User is inactive"
         if user.status != UserStatus.ACTIVE.value:
             return False, "User is not active status: " + UserStatus.get_name(user.status)
+        # for record in user.current_borrowings:
+        #     if record.resource_id == resource.id:
+        #         return False, f"User already has a copy of {resource.title}"
         limits = user.get_borrowing_limits()
         current_borrowings = len(user.current_borrowings)
         if current_borrowings >= limits['max_books']:
@@ -233,9 +238,20 @@ class Validator:
             return False, "Search query cannot be empty"
         if len(query.strip()) < min_length:
             return False, f"Search query must be at least {min_length} characters"
-        dangerous_chars = [';', '--', 'DROP', 'DELETE', 'UPDATE', 'INSERT']
+        dangerous_chars = [
+        r'\bSELECT\b.*\bFROM\b',
+        r'\bDROP\b.*\bTABLE\b',
+        r'\bDELETE\b.*\bFROM\b',
+        r'\bUPDATE\b.*\bSET\b',
+        r'\bINSERT\b.*\bINTO\b',
+        r'--',
+        r';',
+        r'/\*',
+        r'\*/',
+        r'UNION.*SELECT',
+        ]
         for char in dangerous_chars:
-            if char in query.upper():
+            if re.search(char, query.upper()):
                 return False, "Search query contains invalid characters"
         return True, "Search Query is valid"
 
@@ -253,7 +269,7 @@ class Validator:
             return False, "User is not active"
         current_fines = user.get_outstanding_fines()
         if current_fines + amount > 10000:
-            return False, f"Adding this fine would exceedd limit"
+            return False, "Adding this fine would exceedd limit"
         return True, "Fine can be charged"
 
 

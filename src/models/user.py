@@ -6,6 +6,8 @@ import hashlib
 import secrets
 import re
 
+from src.utils.auth_tools import AuthTools
+
 
 # Enum for user types and status
 class UserRole(Enum):
@@ -172,9 +174,9 @@ class BorrowingRecord:
         return False
 
     def return_item(self) -> float:
+        self.calculate_fines()
         self.return_date = datetime.now().strftime("%Y-%m-%d")
         self.status = "returned"
-        self.calculate_fines()
         return self.fine_amount
 
     def to_dict(self) -> Dict[str, Any]:
@@ -194,7 +196,13 @@ class BorrowingRecord:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'BorrowingRecord':
-        return cls(**data)
+        d = data.copy()
+        d.pop('renewal_history', None)
+        d['resource_id'] = int(d.get('resource_id', 0))
+        d['renewal_count'] = int(d.get('renewal_count', 0))
+        d['fine_amount'] = float(d.get('fine_amount', 0.0))
+        d['fine_paid'] = str(d.get('fine_paid')).lower() == 'true'
+        return cls(**d)
 
 
 #  Fine Record class to track fines.
@@ -302,7 +310,8 @@ class User(ABC):
             address: str = "",
             registration_date: Optional[str] = None,
             last_login: Optional[str] = None,
-            notes: str = ""
+            notes: str = "",
+            **kwargs
     ):
         self.user_id = user_id
         self.username = username
@@ -337,8 +346,7 @@ class User(ABC):
         pass
 
     def verify_password(self, password: str) -> bool:
-        hash_obj = hashlib.sha256(password.encode())
-        return hash_obj.hexdigest() == self.password_hash
+        return AuthTools.verify_password(password, self.password_hash)
 
     def update_last_login(self) -> None:
         self.last_login = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -526,6 +534,8 @@ class Student(User):
     def __init__(self, **kwargs):
         if 'department' not in kwargs:
             kwargs['department'] = 'Undergraduate'
+        if 'role' not in kwargs:
+            kwargs['role'] = UserRole.STUDENT.value
         super().__init__(**kwargs)
         self.student_id = kwargs.get('student_id', self.user_id)
         self.year_of_study = kwargs.get('year_of_study', 1)
@@ -563,6 +573,8 @@ class Student(User):
 # Class for Faculty.
 class Faculty(User):
     def __init__(self, **kwargs):
+        if 'role' not in kwargs:
+            kwargs['role'] = UserRole.FACULTY.value
         super().__init__(**kwargs)
         self.employee_id = kwargs.get('employee_id', self.user_id)
         self.designation = kwargs.get('designation', 'Professor')
@@ -605,6 +617,8 @@ class Faculty(User):
 # Class for Librarian
 class Librarian(User):
     def __init__(self, **kwargs):
+        if 'role' not in kwargs:
+            kwargs['role'] = UserRole.LIBRARIAN.value
         super().__init__(**kwargs)
         self.employee_id = kwargs.get('employee_id', self.user_id)
         self.staff_id = kwargs.get('staff_id', '')
@@ -656,6 +670,8 @@ class Librarian(User):
 # Class for Admin
 class Admin(User):
     def __init__(self, **kwargs):
+        if 'role' not in kwargs:
+            kwargs['role'] = UserRole.ADMIN.value   
         super().__init__(**kwargs)
         self.admin_id = kwargs.get('admin_id', self.user_id)
         self.access_level = kwargs.get('access_level', 'Full')
@@ -731,11 +747,10 @@ class UserFactory:
                 3: 'LIB',
                 4: 'ADM'
             }.get(role, 'USR')
-            kwargs['user_id'] = f"{prefix}{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            kwargs['user_id'] = f"{prefix}{datetime.now().strftime('%Y%m%d%H%M%S')}{secrets.token_hex(2)}"
 
         if 'password' in kwargs and 'password_hash' not in kwargs:
-            hash_obj = hashlib.sha256(kwargs['password'].encode())
-            kwargs['password_hash'] = hash_obj.hexdigest()
+            kwargs['password_hash'] = AuthTools.hash_password(kwargs['password'])
             del kwargs['password']
 
         if role == UserRole.STUDENT.value:
@@ -773,9 +788,11 @@ class UserFactory:
             'notes': row.get('notes', '')
         }
         role = data['role']
+        del data['role']
         if role == UserRole.STUDENT.value:
             data['student_id'] = row.get('student_id', data['user_id'])
-            data['year_of_study'] = int(row.get('year_of_study', 1))
+            year = row.get('year_of_study')
+            data['year_of_study'] = int(year) if year and str(year).isdigit() else 1
             data['major'] = row.get('major', 'Undeclared')
         elif role == UserRole.FACULTY.value:
             data['employee_id'] = row.get('employee_id', data['user_id'])

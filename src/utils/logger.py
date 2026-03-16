@@ -109,22 +109,34 @@ class Logger:
         self.transaction_logger.setLevel(logging.INFO)
         self.transaction_logger.propagate = False
 
-    def debug(self, message: str, **kwargs):
+    def debug(self, message: str, *args, **kwargs):
+        if args:
+            message = message % args
         self.logger.debug(message, extra=kwargs)
 
-    def info(self, message: str, **kwargs):
+    def info(self, message: str, *args, **kwargs):
+        if args:
+            message = message % args
         self.logger.info(message, extra=kwargs)
 
-    def warning(self, message: str, **kwargs):
+    def warning(self, message: str, *args, **kwargs):
+        if args:
+            message = message % args
         self.logger.warning(message, extra=kwargs)
 
-    def error(self, message: str, **kwargs):
+    def error(self, message: str, *args, **kwargs):
+        if args:
+            message = message % args
         self.logger.error(message, extra=kwargs)
 
-    def critical(self, message: str, **kwargs):
+    def critical(self, message: str, *args, **kwargs):
+        if args:
+            message = message % args
         self.logger.critical(message, extra=kwargs)
 
-    def exception(self, message: str, **kwargs):
+    def exception(self, message: str, *args, **kwargs):
+        if args:
+            message = message % args
         self.logger.exception(message, extra=kwargs)
 
 

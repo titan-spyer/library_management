@@ -196,11 +196,29 @@ class Storage:
 
     def search_resources_by_author(self, author: str) -> List[Dict[str, str]]:
         resources = self._read_csv(self.resources_file)
-        return [res for res in resources if res.get('author') and author.lower() in res['author'].lower()]
+        author_lower = author.lower()
+        # Split into words for better matching
+        author_words = author_lower.split()
+        results = []
+        for res in resources:
+            if res.get('author'):
+                res_author_lower = res['author'].lower()
+                # Check if all search words appear in the author field
+                if all(word in res_author_lower for word in author_words):
+                    results.append(res)
+        return results
 
     def search_resources_by_genre(self, genre: str) -> List[Dict[str, str]]:
         resources = self._read_csv(self.resources_file)
-        return [res for res in resources if res.get('genre') and genre.lower() in res['genre'].lower()]
+        genre_lower = genre.lower()
+        genre_words = genre_lower.split()
+        results = []
+        for res in resources:
+            if res.get('genre'):
+                res_genre_lower = res['genre'].lower()
+                if all(word in res_genre_lower for word in genre_words):
+                    results.append(res)
+        return results
     def search_resources_by_title(self, title: str) -> List[Dict[str, str]]:
         resources = self._read_csv(self.resources_file)
         return [res for res in resources if res.get('title') and title.lower() in res['title'].lower()]
@@ -359,6 +377,14 @@ class Storage:
     def clear_all_data(self, confirm: bool = False) -> bool:
         if not confirm:
             return False
+        files_to_delete = [
+            self.users_file, self.resources_file, self.copies_file, 
+            self.transactions_file, self.fines_file, self.borrowing_records_file
+        ]
+        for file_path in files_to_delete:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                
         self._initialize_csv_files()
         return True
 

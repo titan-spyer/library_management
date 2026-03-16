@@ -238,6 +238,10 @@ class TestStorageResourceOperations:
         
         results = storage.search_resources_by_author("john")
         assert len(results) == 2  # Both John Doe entries
+        results = storage.search_resources_by_author("John Doe")
+        assert len(results) == 2
+        results = storage.search_resources_by_author("Jane")
+        assert len(results) == 1
     
     def test_search_resources_by_genre(self, storage):
         """Test searching resources by genre."""

@@ -27,7 +27,7 @@ class LibraryEngine:
         if user_id in self._user_cache:
             return self._user_cache[user_id]
         user_data = self.storage.find_user_by_id(user_id)
-        if user_data:
+        if user_data:   
             user = UserFactory.create_from_csv_row(user_data)
             self._load_user_borrowing_history(user)
             self._load_user_fines(user)
@@ -162,7 +162,7 @@ class LibraryEngine:
             if book.copies == 0:
                 book.status = 1
         else:
-            book.copies -= 1
+            pass
 
         self.save_user(user)
         self.save_book(book)
@@ -230,7 +230,7 @@ class LibraryEngine:
             )
             user.add_fine(fine_record)
         self.save_user(user)
-        self.logger.info(f"Copy {copy_id} returned by user {user_id}, fine: ₹{fine_amount:.2f}")
+        self.logger.info(f"Copy {copy_id} returned by user {user_id}, fine: ${fine_amount:.2f}")
         self.storage.log_transaction({
             'transaction_id': f"TXN-{datetime.now().strftime('%Y%m%d%H%M%S')}",
             'type': 'return',
@@ -242,12 +242,12 @@ class LibraryEngine:
         if fine_amount > 0:
             user.add_notification(
                 "fine",
-                f"Your return of copy {copy_id} incurred a fine of ₹{fine_amount:.2f}. Please pay by {fine_record.due_date} to avoid further penalties.",
+                f"Your return of copy {copy_id} incurred a fine of ${fine_amount:.2f}. Please pay to avoid further penalties.",
                 "high"
             )
         return {
             "success": True,
-            "message": f"Book returned successfully.",
+            "message": "Book returned successfully.",
             "fine_amount": fine_amount,
             "fine_waived": False
         }
@@ -274,7 +274,7 @@ class LibraryEngine:
             if datetime.now() > due:
                 return {
                     "success": False,
-                    "message": f"Cannot renew. You have overdue items."
+                    "message": "Cannot renew. You have overdue items."
                 }
         limits = user.get_borrowing_limits()
         if active_record.renewal_count >= limits['max_renewals']:
@@ -291,7 +291,7 @@ class LibraryEngine:
             'user_id': user_id,
             'copy_id': copy_id,
             'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            'new_due_date': active_record.due_date
+            'due_date': active_record.due_date
         })
         user.add_notification(
             "renewal",
@@ -322,16 +322,17 @@ class LibraryEngine:
                 "success": False,
                 "message": f"Username {kwargs['username']} is already taken"
             }
-        if not self.validator.validate_email(kwargs['email']):
+        validate_email, validate_message = self.validator.validate_email(kwargs['email'])
+        if not validate_email:
             return {
                 "success": False,
-                "message": f"Invalid email format: {kwargs['email']}"
+                "message": f"Invalid email format: {validate_message}"
             }
-
-        if not self.validator.validate_password_strength(kwargs['password']):
+        validate_pass, pass_msg = self.validator.validate_password_strength(kwargs['password'])
+        if not validate_pass:
             return {
                 "success": False,
-                "message": "Password does not meet strength requirements"
+                "message": f"Password does not meet strength requirements {pass_msg}"
             }
 
         try:
@@ -342,7 +343,7 @@ class LibraryEngine:
                 self.logger.info(f"User registered successfully: {user.user_id}")
                 return {
                     "success": True,
-                    "message": f"User registered successfully",
+                    "message": "User registered successfully",
                     "user_id": user.user_id,
                     "status": "pending_activation"
                 }
@@ -483,7 +484,7 @@ class LibraryEngine:
                     self.logger.info(f"Fine {fine_id} waived by {admin.full_name}")
                     user.add_notification(
                         "fine",
-                        f"Your fine of ₹{fine.amount:.2f} for record {fine.record_id} has been waived by {admin.full_name}.",
+                        f"Your fine of ${fine.amount:.2f} for record {fine.record_id} has been waived by {admin.full_name}.",
                         "high"
                     )
                     return {
@@ -749,13 +750,13 @@ class LibraryEngine:
             self.save_user(user)
             user.add_notification(
                 "fine",
-                f"Your pending fines totaling ₹{cleared_amount:.2f} have been cleared by {admin.full_name}.",
+                f"Your pending fines totaling ${cleared_amount:.2f} have been cleared by {admin.full_name}.",
                 "high"
             )
-            self.logger.info(f"Admin {admin_id}  cleared {cleared_count} fines for user {user_id}, total amount: ₹{cleared_amount:.2f}")
+            self.logger.info(f"Admin {admin_id}  cleared {cleared_count} fines for user {user_id}, total amount: ${cleared_amount:.2f}")
             return {
                 "success": True,
-                "message": f"Cleared {cleared_count} fines for user {user.full_name}, total amount: ₹{cleared_amount:.2f}"
+                "message": f"Cleared {cleared_count} fines for user {user.full_name}, total amount: ${cleared_amount:.2f}"
             }
         else:
             return {

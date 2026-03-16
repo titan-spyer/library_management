@@ -130,7 +130,7 @@ class PhysicalCopy:
             copy_id=data['copy_id'],
             resource_id=data['resource_id'],
             barcode=data['barcode'],
-            condition=ConditionType(data['condition']),
+            condition=ConditionType(int(data['condition'])),
             location=data['location'],
             status=data['status'],
             purchase_date=data['purchase_date'],
@@ -470,7 +470,7 @@ class Book(Resource):
             print(f"❌ Copy {copy_id} not found or not checked out.")
             return False
         else:
-            print(f"📱 Digital resources don't need to be checked in.")
+            print("📱 Digital resources don't need to be checked in.")
             return True
 
     def copies_available(self):
@@ -548,7 +548,7 @@ class ResearchPaper(Resource):
             self.copies += 1
             print(f"✅ '{self.title}' has been checked in.")
         else:
-            print(f"📄 Digital research papers don't need check-in.")
+            print("📄 Digital research papers don't need check-in.")
         return True
 
     def copies_available(self):

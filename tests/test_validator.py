@@ -135,7 +135,7 @@ class TestValidatorPhone:
         """Test invalid phone numbers."""
         invalid_phones = [
             '12345',  # Too short
-            '12345678901',  # Too long
+            '12345678901664',  # Too long
             'abcdefghij',  # Not digits
             '123-abc-7890',  # Mixed
             ''  # Empty
