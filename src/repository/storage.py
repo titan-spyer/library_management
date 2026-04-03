@@ -1,8 +1,15 @@
 import csv
 import os
+import sys
 from typing import Optional, List, Dict, Any, Union
 from datetime import datetime
 import shutil
+
+current_dir = os.path.dirname(__file__)
+cpp_engine_path = os.path.abspath(os.path.join(current_dir, '..', 'cpp_modules', 'search_engine'))
+sys.path.append(cpp_engine_path)
+
+import library_search
 
 
 class Storage:
@@ -225,7 +232,23 @@ class Storage:
         return results
     def search_resources_by_title(self, title: str) -> List[Dict[str, str]]:
         resources = self._read_csv(self.resources_file)
-        return [res for res in resources if res.get('title') and title.lower() in res['title'].lower()]
+        
+        # 1. Grab all the titles from the CSV data
+        all_titles = [res.get('title', '') for res in resources]
+        
+        # 2. FIRE THE C++ ENGINE! 🚀
+        # It takes the query and the list of titles, and returns the index positions of matches.
+        try:
+            matched_indices = library_search.find_matches(title, all_titles)
+            
+            # 3. Use the C++ indices to grab the actual full book dictionaries
+            results = [resources[i] for i in matched_indices]
+            return results
+            
+        except Exception as e:
+            # Fallback to standard Python just in case the C++ engine has an issue
+            self.logger.error(f"C++ Search Engine failed, falling back to Python: {e}")
+            return [res for res in resources if title.lower() in res.get('title', '').lower()]
 
 
 
