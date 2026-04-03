@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
+*.dylib
+*.log
+**/*.log
+logs/
 
 # Virtual Environments
 venv/
@@ -21,3 +25,4 @@ htmlcov/
 .idea/
 .DS_Store
 Thumbs.db
+build/

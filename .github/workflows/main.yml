@@ -34,6 +34,11 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         # Install testing dependencies (pytest, black, ruff)
         if [ -f requirements-test.txt ]; then pip install -r requirements-test.txt; fi
+  
+    # 4. Compile the C++ Extension on the Linux Server
+    - name: Compile C++ Search Engine
+      run: |
+        python setup.py build_ext --inplace
 
     # 6. Run the Unit Tests (Pytest)
     - name: Run Unit Tests

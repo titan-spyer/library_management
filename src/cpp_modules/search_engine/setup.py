@@ -5,7 +5,7 @@ import pybind11
 ext_modules = [
     Extension(
         "library_search",                   # The name of the module you will import in Python
-        ["src/cpp/fast_search.cpp"],        # The file to compile
+        ["fast_search.cpp"],        # The file to compile
         include_dirs=[pybind11.get_include()],
         language='c++'
     ),
